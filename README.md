@@ -195,6 +195,7 @@ A CLI suporta o seguinte padrão de branches:
 | ------------- | ------------------------------------ |
 | `feature`     | Nova funcionalidade                  |
 | `bugfix`      | Correção de bug                      |
+| `fix`         | Correção de bug (forma curta)        |
 | `hotfix`      | Correção urgente em produção         |
 | `task`        | Tarefa técnica                       |
 | `chore`       | Manutenção/refatoração               |
@@ -216,7 +217,7 @@ task/DEV-456-atualizar-dependencias
 **Padrão Default:**
 
 ```regex
-(?:feature|hotfix|bugfix|task|chore|release|epic|improvement)\/([A-Z]+-\d+)
+(?:feature|hotfix|bugfix|fix|task|chore|release|epic|improvement)\/([A-Z]+-\d+)
 ```
 
 **Customização:**

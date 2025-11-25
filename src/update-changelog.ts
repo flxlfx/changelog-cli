@@ -29,7 +29,7 @@ export async function updateChangelog(
     const branchName = getBranchName();
     const taskRegex = config.TASK_REGEX
       ? new RegExp(config.TASK_REGEX)
-      : /(?:feature|hotfix|bugfix|task|chore|release|epic|improvement)\/([A-Z]+-\d+)/;
+      : /(?:feature|hotfix|bugfix|fix|task|chore|release|epic|improvement)\/([A-Z]+-\d+)/;
 
     const issueMatch = branchName.match(taskRegex);
 
