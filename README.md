@@ -1,5 +1,7 @@
 # @flxlfx/changelog-cli
 
+[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://github.com/flxlfx/changelog-cli)
+
 CLI interativa para automação de CHANGELOG.md com integração Jira API.
 
 ## Índice
@@ -22,6 +24,7 @@ Ferramenta que automatiza atualização de `CHANGELOG.md` seguindo [Keep a Chang
 
 - ✅ Configuração segura de credenciais (armazenadas em `~/.flxlfx/changelog-cli-config.json`)
 - ✅ Detecção automática de issue ID na branch Git
+- ✅ Entrada manual de issue ID (quando não estiver em branch com padrão)
 - ✅ Busca automática de summary e URL da issue no Jira
 - ✅ Suporte a 6 seções do CHANGELOG (Added, Changed, Deprecated, Removed, Fixed, Security)
 - ✅ Validação de entrada com feedback imediato
@@ -31,19 +34,32 @@ Ferramenta que automatiza atualização de `CHANGELOG.md` seguindo [Keep a Chang
 
 ## Instalação
 
+### Desenvolvimento Local
+
 ```bash
 bun install
 bun run build
 ```
 
-### Executáveis
-
-Após o build, o binário fica disponível em:
+### Como Dependência
 
 ```bash
+bun add @flxlfx/changelog-cli
+```
+
+### Executáveis
+
+Após instalação/build, o binário fica disponível em:
+
+```bash
+# Localmente
 ./dist/cli.js
-# ou via package.json bin
+
+# Via package.json bin
 jc-cli
+
+# Desenvolvimento
+bun run dev
 ```
 
 ## Configuração
@@ -115,24 +131,42 @@ bun run cli
    - Sair
 
 2. **Atualizar CHANGELOG**
+   - Escolhe modo de obtenção do issue ID (branch ou manual)
    - Seleciona seção do CHANGELOG
-   - CLI detecta issue ID na branch atual
    - Busca dados no Jira
    - Adiciona entrada formatada ao CHANGELOG.md
 
 ### Exemplo de Uso
+
+#### Via Branch
 
 ```bash
 $ git checkout -b feature/ISSUE-1234-implements-code
 
 $ bun run cli
 ? O que deseja fazer? Atualizar CHANGELOG
+? Como deseja obter o issue ID? Extrair do branch atual
 ? Selecione a seção do CHANGELOG: Added - Nova funcionalidade
 
 🔍 Buscando issue ISSUE-1234...
 
 ✅ Adicionado ao CHANGELOG.md [Added]:
    - [ISSUE-1234](https://empresa.atlassian.net/browse/ISSUE-1234) Implementar um código de exemplo
+```
+
+#### Via Entrada Manual
+
+```bash
+$ bun run cli
+? O que deseja fazer? Atualizar CHANGELOG
+? Como deseja obter o issue ID? Inserir manualmente
+? Digite o issue ID (ex: ISSUE-1234): PROJ-5678
+? Selecione a seção do CHANGELOG: Fixed - Correção de bug
+
+🔍 Buscando issue PROJ-5678...
+
+✅ Adicionado ao CHANGELOG.md [Fixed]:
+   - [PROJ-5678](https://empresa.atlassian.net/browse/PROJ-5678) Corrigir erro no login
 ```
 
 ### Resultado no CHANGELOG.md
@@ -146,6 +180,8 @@ $ bun run cli
 ```
 
 ## Nomenclatura de Branches
+
+**Nota:** Padrão opcional quando usando entrada manual de issue ID.
 
 A CLI suporta o seguinte padrão de branches:
 
@@ -221,11 +257,11 @@ Seguindo [Keep a Changelog](https://keepachangelog.com/):
 ```
 src/
 ├── cli.ts                  # CLI interativa, menus, comandos
-├── config.ts               # Gerenciamento de configuração
-├── env.ts                  # Validação de variáveis de ambiente
+├── config.ts               # Gerenciamento de configuração (~/.flxlfx)
+├── env.ts                  # Schema de validação de environment (Zod)
 ├── update-changelog.ts     # Lógica de atualização do CHANGELOG
 └── utils/
-    └── adf-to-markdown.ts  # Conversão Atlassian Document Format (não utilizado)
+    └── adf-to-markdown.ts  # Conversão Atlassian Document Format
 ```
 
 ### Principais Funções
@@ -234,8 +270,9 @@ src/
 
 - `mainMenu()` - Menu principal da CLI
 - `setupCommand()` - Configuração de credenciais
-- `changelogCommand()` - Fluxo de atualização do CHANGELOG
+- `changelogCommand()` - Fluxo de atualização do CHANGELOG (extração automática ou entrada manual)
 - `handleError()` - Tratamento centralizado de erros
+- `isPromptCancelled()` - Detecção de cancelamento de prompts
 
 #### `src/update-changelog.ts`
 
@@ -255,7 +292,7 @@ src/
 ### Fluxo de Dados
 
 ```
-Branch Git → Extração Issue ID → Jira API → Formatação → CHANGELOG.md
+Branch Git/Entrada Manual → Issue ID → Jira API → Formatação → CHANGELOG.md
 ```
 
 ### Dependências
@@ -272,7 +309,9 @@ Branch Git → Extração Issue ID → Jira API → Formatação → CHANGELOG.m
 
 **Problema:** Branch não segue padrão `<tipo>/<ISSUE-ID>`
 
-**Solução:** Renomeie a branch ou crie nova seguindo o padrão:
+**Solução 1:** Use entrada manual de issue ID na CLI
+
+**Solução 2:** Renomeie a branch ou crie nova seguindo o padrão:
 
 ```bash
 git checkout -b feature/ISSUE-1234-descricao
@@ -316,9 +355,10 @@ echo "# Changelog\n\n## [Unreleased]" > CHANGELOG.md
 
 ### Sistema
 
-- **Bun** >= 1.3.2
+- **Bun** >= 1.3.2 (runtime e build)
 - **Git** (instalado e repositório inicializado)
 - **Node.js** >= 18 (para executar o binário compilado)
+- **TypeScript** >= 5 (peer dependency)
 
 ### Jira
 
@@ -329,7 +369,7 @@ echo "# Changelog\n\n## [Unreleased]" > CHANGELOG.md
 ### Repositório
 
 - `CHANGELOG.md` na raiz do projeto
-- Branch com nomenclatura padrão `<tipo>/<ISSUE-ID>`
+- Branch com nomenclatura padrão `<tipo>/<ISSUE-ID>` (opcional se usar entrada manual)
 
 ## Scripts Disponíveis
 
